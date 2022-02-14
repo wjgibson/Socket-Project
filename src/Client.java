@@ -32,9 +32,9 @@ public class Client {
                 case "L":
                     //List all files (ignoring directories) in the server directory
                     //(file name : file size)
-                    ByteBuffer L_buffer = ByteBuffer.wrap("L".getBytes());
-                    SocketChannel L_channel = SocketChannel.open();
-                    L_channel.connect(new InetSocketAddress(serverAddr, serverPort));
+                    ByteBuffer listBuffer = ByteBuffer.wrap("L".getBytes());
+                    SocketChannel listChannel = SocketChannel.open();
+                    listChannel.connect(new InetSocketAddress(serverAddr, serverPort));
                     //System.out.println("TCP connection established.");
 
                     //The random sleep is for testing purpose only!
@@ -43,20 +43,20 @@ public class Client {
                     // }catch(InterruptedException e){;}
 
                     //read from the buffer into the channel
-                    L_channel.write(L_buffer);
+                    listChannel.write(listBuffer);
 
                     //before writing to buffer, clear buffer
                     //("position" set to zero, "limit" set to "capacity")
-                    L_buffer.clear();
+                    listBuffer.clear();
 
                     int bytesRead;
                     //read will return -1 if the server has closed the TCP connection
                     // (when server has finished sending)
-                    if (serverCode(L_channel).equals("F")){
+                    if (serverCode(listChannel).equals("F")){
                         System.out.println("Server rejected the request.");
                     }else {
                         ByteBuffer data = ByteBuffer.allocate(1024);
-                        while( (bytesRead = L_channel.read(data)) != -1) {
+                        while( (bytesRead = listChannel.read(data)) != -1) {
                             //before reading from buffer, flip buffer
                             //("limit" set to current position, "position" set to zero)
                             data.flip();
@@ -68,12 +68,12 @@ public class Client {
                             System.out.println(serverMessage);
                         }
                     }
-                    L_channel.close();
+                    listChannel.close();
                     break;
 
                 case "D":
-                    SocketChannel D_channel = SocketChannel.open();
-                    D_channel.connect(new InetSocketAddress(serverAddr, serverPort));
+                    SocketChannel deleteChannel = SocketChannel.open();
+                    deleteChannel.connect(new InetSocketAddress(serverAddr, serverPort));
 
                     System.out.println("Please enter the name of the file you wish to delete");
                     //end filename with special character!
@@ -81,16 +81,16 @@ public class Client {
 
                     String clientMessage = "D"+D_filename+"\n";
 
-                    ByteBuffer filename_buffer = ByteBuffer.wrap(clientMessage.getBytes());
-                    D_channel.write(filename_buffer);
+                    ByteBuffer filenameBuffer = ByteBuffer.wrap(clientMessage.getBytes());
+                    deleteChannel.write(filenameBuffer);
 
-                    filename_buffer.clear();
+                    filenameBuffer.clear();
 
-                    if (serverCode(D_channel).equals("F")){
+                    if (serverCode(deleteChannel).equals("F")){
                         System.out.println("Server rejected the request.");
                     }
                     else{
-                        System.out.println(serverCode(D_channel));
+                        System.out.println(serverCode(deleteChannel));
                     }
 
                     //Delete a file
