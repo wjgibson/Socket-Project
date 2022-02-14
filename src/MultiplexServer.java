@@ -13,7 +13,7 @@ public class MultiplexServer {
 
     private static final int CLIENT_CODE_LENGTH = 1;
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
 
         //open a selector
         Selector monitor = Selector.open();
@@ -61,16 +61,14 @@ public class MultiplexServer {
 
                     //register the dedicated socket channel for reading
                     serveChannel.register(monitor, SelectionKey.OP_READ);
-                }
-
-                else if (key.isReadable()) {
+                } else if (key.isReadable()) {
                     //OS received one or more packets from one or more clients
                     SocketChannel serveChannel = (SocketChannel) key.channel();
                     ByteBuffer buffer = ByteBuffer.allocate(CLIENT_CODE_LENGTH);
                     int bytesToRead = CLIENT_CODE_LENGTH;
 
                     //make sure we read the entire server reply
-                    while((bytesToRead -= serveChannel.read(buffer)) > 0);
+                    while ((bytesToRead -= serveChannel.read(buffer)) > 0) ;
 
                     byte[] a = new byte[CLIENT_CODE_LENGTH];
                     buffer.flip();
@@ -78,15 +76,15 @@ public class MultiplexServer {
                     String request = new String(a);
                     System.out.println("Request from client: " + request);
 
-                    switch(request){
+                    switch (request) {
                         case "L":
                             //send reply code to indicate request was accepted
                             sendReplyCode(serveChannel, "S");
 
-                            File[] filesList = new File(".").listFiles();
+                            File[] filesList = new File("files").listFiles();
                             StringBuilder allFiles = new StringBuilder();
-                            if (filesList != null){
-                                for (File f : filesList){
+                            if (filesList != null) {
+                                for (File f : filesList) {
                                     //ignore directories
                                     if (!f.isDirectory()) {
                                         allFiles.append(f.getName());
@@ -106,16 +104,24 @@ public class MultiplexServer {
 
                             ByteBuffer deleteData = ByteBuffer.allocate(1024);
                             int bytesRead;
+                            byte[] b = new byte[0];
 
-                            while( (bytesRead = serveChannel.read(deleteData)) != -1){
+                            while ((bytesRead = serveChannel.read(deleteData)) != -1) {
                                 deleteData.flip();
-                                byte[] b = new byte[bytesRead];
-
-                                deleteData.get(b);
-                                String filename = new String(b);
-                                System.out.println("filename " + filename);
+                                b = new byte[bytesRead];
                             }
-                            //Delete file
+
+                            deleteData.get(b);
+                            String filename = new String(b);
+
+                            File soonToBeGone = new File("files/" + filename);
+                            if (soonToBeGone.delete()) {
+                                sendReplyCode(serveChannel, "S");
+                                System.out.println("File deleted!");
+                            } else {
+                                sendReplyCode(serveChannel, "F");
+                                System.out.println("No file!");
+                            }
                             break;
 
                         case "G":
@@ -139,7 +145,7 @@ public class MultiplexServer {
         }
     }
 
-    private static void sendReplyCode (SocketChannel channel, String code) throws IOException{
+    private static void sendReplyCode(SocketChannel channel, String code) throws IOException {
         ByteBuffer data = ByteBuffer.wrap(code.getBytes());
         channel.write(data);
     }

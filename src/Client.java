@@ -77,10 +77,9 @@ public class Client {
                     deleteChannel.connect(new InetSocketAddress(serverAddr, serverPort));
 
                     System.out.println("Please enter the name of the file you wish to delete");
-                    //end filename with special character!
                     String fileToBeDeleted = keyboard.nextLine();
 
-                    String clientMessage = "D"+fileToBeDeleted+"\n";
+                    String clientMessage = "D"+fileToBeDeleted;
 
                     ByteBuffer messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
                     deleteChannel.write(messageBuffer);
@@ -91,13 +90,9 @@ public class Client {
                         System.out.println("Server rejected the request.");
                     }
                     else{
-
-                        System.out.println(serverCode(deleteChannel));
+                        System.out.println("File was deleted.");
                     }
-
-                    //Delete a file
-                    //Ask the user for the file name
-                    //Notify the user whether the operation is successful
+                    deleteChannel.close();
                     break;
 
                 case "G":

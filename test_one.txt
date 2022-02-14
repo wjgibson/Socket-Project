@@ -1,3 +1,0 @@
-This is a test!
-
-If everything works correctly, this should display.
