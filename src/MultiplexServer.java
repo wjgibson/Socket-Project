@@ -105,13 +105,16 @@ public class MultiplexServer {
                         case "D":
 
                             ByteBuffer deleteData = ByteBuffer.allocate(1024);
-                            int bytesRead = serveChannel.read(deleteData);
+                            int bytesRead;
 
-                            byte[] b = new byte[1024];
-                            deleteData.flip();
-                            deleteData.get(b);
-                            String filename = new String(b);
-                            System.out.println("filename " + filename);
+                            while( (bytesRead = serveChannel.read(deleteData)) != -1){
+                                deleteData.flip();
+                                byte[] b = new byte[bytesRead];
+
+                                deleteData.get(b);
+                                String filename = new String(b);
+                                System.out.println("filename " + filename);
+                            }
                             //Delete file
                             break;
 

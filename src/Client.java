@@ -27,6 +27,7 @@ public class Client {
             System.out.println("enter a command (D, G, L, R, or Q):");
             //Commands are NOT case-sensitive.
             command = keyboard.next().toUpperCase();
+            keyboard.nextLine();
 
             switch (command){
                 case "L":
@@ -77,19 +78,20 @@ public class Client {
 
                     System.out.println("Please enter the name of the file you wish to delete");
                     //end filename with special character!
-                    String D_filename = keyboard.nextLine();
+                    String fileToBeDeleted = keyboard.nextLine();
 
-                    String clientMessage = "D"+D_filename+"\n";
+                    String clientMessage = "D"+fileToBeDeleted+"\n";
 
-                    ByteBuffer filenameBuffer = ByteBuffer.wrap(clientMessage.getBytes());
-                    deleteChannel.write(filenameBuffer);
+                    ByteBuffer messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
+                    deleteChannel.write(messageBuffer);
 
-                    filenameBuffer.clear();
+                    deleteChannel.shutdownOutput();
 
                     if (serverCode(deleteChannel).equals("F")){
                         System.out.println("Server rejected the request.");
                     }
                     else{
+
                         System.out.println(serverCode(deleteChannel));
                     }
 
