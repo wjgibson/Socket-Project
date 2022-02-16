@@ -20,6 +20,8 @@ public class Client {
 
         int serverPort = Integer.parseUnsignedInt(args[1]);
         String serverAddr = args[0];
+        String clientMessage;
+        ByteBuffer messageBuffer;
 
         String command;
         do{
@@ -79,9 +81,9 @@ public class Client {
                     System.out.println("Please enter the name of the file you wish to delete");
                     String fileToBeDeleted = keyboard.nextLine();
 
-                    String clientMessage = "D"+fileToBeDeleted;
+                    clientMessage = "D" + fileToBeDeleted;
 
-                    ByteBuffer messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
+                    messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
                     deleteChannel.write(messageBuffer);
 
                     deleteChannel.shutdownOutput();
@@ -102,10 +104,28 @@ public class Client {
                     break;
 
                 case "R":
-                    //Rename a file
-                    //Ask the user for the original file name
-                    //and the new file name.
-                    //Notify the user whether the operation is successful.
+                    SocketChannel renameChannel = SocketChannel.open();
+                    renameChannel.connect(new InetSocketAddress(serverAddr, serverPort));
+
+                    System.out.println("Please enter the name of the file you wish to rename");
+                    String fileToBeRenamed = keyboard.nextLine();
+                    System.out.println("Please enter the new name of the file");
+                    String newFileName = keyboard.nextLine();
+
+                    clientMessage = "R" + fileToBeRenamed + "&" + newFileName;
+
+                    messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
+                    renameChannel.write(messageBuffer);
+
+                    renameChannel.shutdownOutput();
+
+                    if (serverCode(renameChannel).equals("F")){
+                        System.out.println("Server rejected the request.");
+                    }
+                    else{
+                        System.out.println("File was renamed.");
+                    }
+                    renameChannel.close();
                     break;
 
                 default:

@@ -35,6 +35,7 @@ public class MultiplexServer {
             // or the current thread is interrupted
             int readyChannels = monitor.select();
 
+
             //select() returns the number of keys, possibly zero
             if (readyChannels == 0) {
                 continue;
@@ -66,6 +67,7 @@ public class MultiplexServer {
                     SocketChannel serveChannel = (SocketChannel) key.channel();
                     ByteBuffer buffer = ByteBuffer.allocate(CLIENT_CODE_LENGTH);
                     int bytesToRead = CLIENT_CODE_LENGTH;
+                    int bytesRead;
 
                     //make sure we read the entire server reply
                     while ((bytesToRead -= serveChannel.read(buffer)) > 0) ;
@@ -103,7 +105,6 @@ public class MultiplexServer {
                         case "D":
 
                             ByteBuffer deleteData = ByteBuffer.allocate(1024);
-                            int bytesRead;
                             byte[] b = new byte[0];
 
                             while ((bytesRead = serveChannel.read(deleteData)) != -1) {
@@ -129,7 +130,28 @@ public class MultiplexServer {
                             break;
 
                         case "R":
-                            //Rename file
+                            ByteBuffer renameData = ByteBuffer.allocate(1024);
+                            byte[] c = new byte[0];
+
+                            while ((bytesRead = serveChannel.read(renameData)) != -1) {
+                                renameData.flip();
+                                c = new byte[bytesRead];
+                            }
+
+                            renameData.get(c);
+                            String completeMessage = new String(c);
+
+                            String oldName = completeMessage.split("&")[0];
+                            String newName = completeMessage.split("&")[1];
+
+                            File soonToBeRenamed = new File("files/" + oldName);
+                            if (soonToBeRenamed.renameTo(new File("files/" + newName))) {
+                                sendReplyCode(serveChannel, "S");
+                                System.out.println("File renamed!");
+                            } else {
+                                sendReplyCode(serveChannel, "F");
+                                System.out.println("No file was renamed!");
+                            }
                             break;
 
                         default:
