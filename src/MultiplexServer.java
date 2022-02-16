@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -136,6 +137,23 @@ public class MultiplexServer {
 
                             File soonToBeGrabbed = new File("files/" + filenameG);
                             //Send file to client
+                            try (BufferedReader br = new BufferedReader(new FileReader(soonToBeGrabbed))) {
+                                sendReplyCode(serveChannel, "S");
+                                StringBuilder sb = new StringBuilder();
+                                String line = br.readLine();
+
+                                while (line != null) {
+                                    sb.append(line);
+                                    sb.append(System.lineSeparator());
+                                    line = br.readLine();
+                                }
+                                String grabbed = sb.toString();
+                                ByteBuffer grabbedData = ByteBuffer.wrap(grabbed.getBytes());
+                                serveChannel.write(grabbedData);
+                            } catch (Exception e){
+                                sendReplyCode(serveChannel,"F");
+                            }
+
                             break;
 
                         case "R":
@@ -148,8 +166,8 @@ public class MultiplexServer {
                             renameData.get(c);
                             String completeMessage = new String(c);
 
-                            String oldName = completeMessage.split("&")[0];
-                            String newName = completeMessage.split("&")[1];
+                            String oldName = completeMessage.split("&")[0]; //ampersand
+                            String newName = completeMessage.split("&")[1]; //ampersand
 
                             File soonToBeRenamed = new File("files/" + oldName);
                             if (soonToBeRenamed.renameTo(new File("files/" + newName))) {
