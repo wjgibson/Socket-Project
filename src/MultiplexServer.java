@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -105,7 +106,6 @@ public class MultiplexServer {
                         case "D":
 
                             ByteBuffer deleteData = ByteBuffer.allocate(1024);
-                            //byte[] b = new byte[0];
 
                             while ((serveChannel.read(deleteData)) != -1);
 
@@ -125,6 +125,16 @@ public class MultiplexServer {
                             break;
 
                         case "G":
+                            ByteBuffer grabData = ByteBuffer.allocate(1024);
+
+                            while ((serveChannel.read(grabData)) != -1);
+
+                            grabData.flip();
+                            byte[] d = new byte[grabData.remaining()];
+                            grabData.get(d);
+                            String filenameG = new String(d);
+
+                            File soonToBeGrabbed = new File("files/" + filenameG);
                             //Send file to client
                             break;
 
