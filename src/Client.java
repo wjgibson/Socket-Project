@@ -108,6 +108,22 @@ public class Client {
 
                     messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
                     grabChannel.write(messageBuffer);
+
+                    int bytesToRead;
+                    //read will return -1 if the server has closed the TCP connection
+                    // (when server has finished sending)
+                    if (serverCode(grabChannel).equals("F")){
+                        System.out.println("Server rejected the request.");
+                    }else {
+                        ByteBuffer data = ByteBuffer.allocate(1024);
+                        while( (bytesToRead = grabChannel.read(data)) != -1) {
+                            data.flip();
+                            byte[] a = new byte[bytesToRead];
+                            data.get(a);
+                            String serverMessage = new String(a);
+                            System.out.println(serverMessage);
+                        }
+                    }
                     //Get a file from the server
                     //Ask the user for the file name
                     //Notify the user whether the operation is successful
