@@ -98,6 +98,16 @@ public class Client {
                     break;
 
                 case "G":
+                    SocketChannel grabChannel = SocketChannel.open();
+                    grabChannel.connect(new InetSocketAddress(serverAddr, serverPort));
+
+                    System.out.println("Please enter the name of the file you wish to read");
+                    String fileToBeGrabbed = keyboard.nextLine();
+
+                    clientMessage = "G" + fileToBeGrabbed;
+
+                    messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
+                    grabChannel.write(messageBuffer);
                     //Get a file from the server
                     //Ask the user for the file name
                     //Notify the user whether the operation is successful

@@ -105,13 +105,12 @@ public class MultiplexServer {
                         case "D":
 
                             ByteBuffer deleteData = ByteBuffer.allocate(1024);
-                            byte[] b = new byte[0];
+                            //byte[] b = new byte[0];
 
-                            while ((bytesRead = serveChannel.read(deleteData)) != -1) {
-                                deleteData.flip();
-                                b = new byte[bytesRead];
-                            }
+                            while ((serveChannel.read(deleteData)) != -1);
 
+                            deleteData.flip();
+                            byte[] b = new byte[deleteData.remaining()];
                             deleteData.get(b);
                             String filename = new String(b);
 
@@ -131,13 +130,11 @@ public class MultiplexServer {
 
                         case "R":
                             ByteBuffer renameData = ByteBuffer.allocate(1024);
-                            byte[] c = new byte[0];
 
-                            while ((bytesRead = serveChannel.read(renameData)) != -1) {
-                                renameData.flip();
-                                c = new byte[bytesRead];
-                            }
+                            while ((serveChannel.read(renameData)) != -1);
 
+                            renameData.flip();
+                            byte[] c = new byte[renameData.remaining()];
                             renameData.get(c);
                             String completeMessage = new String(c);
 

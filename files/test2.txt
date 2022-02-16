@@ -1,3 +1,0 @@
-This is the second test, to be used for file retrieval
-
-I am a test file, and I should be appearing on the client side! If you don't see this test, something is wrong.
