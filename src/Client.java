@@ -7,6 +7,7 @@ import java.nio.channels.SocketChannel;
 //import java.util.Random;
 import java.util.Scanner;
 
+@SuppressWarnings("ALL")
 public class Client {
 
     //size of the reply codes from the server

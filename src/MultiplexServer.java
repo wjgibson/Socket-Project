@@ -11,6 +11,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+@SuppressWarnings("ALL")
+
 public class MultiplexServer {
 
     private static final int CLIENT_CODE_LENGTH = 1;
@@ -69,7 +71,6 @@ public class MultiplexServer {
                     SocketChannel serveChannel = (SocketChannel) key.channel();
                     ByteBuffer buffer = ByteBuffer.allocate(CLIENT_CODE_LENGTH);
                     int bytesToRead = CLIENT_CODE_LENGTH;
-                    int bytesRead;
 
                     //make sure we read the entire server reply
                     while ((bytesToRead -= serveChannel.read(buffer)) > 0) ;
@@ -81,10 +82,9 @@ public class MultiplexServer {
                     System.out.println("Request from client: " + request);
 
                     switch (request) {
-                        case "L":
+                        case "L" -> {
                             //send reply code to indicate request was accepted
                             sendReplyCode(serveChannel, "S");
-
                             File[] filesList = new File("files").listFiles();
                             StringBuilder allFiles = new StringBuilder();
                             if (filesList != null) {
@@ -98,23 +98,16 @@ public class MultiplexServer {
                                     }
                                 }
                             }
-
                             ByteBuffer data = ByteBuffer.wrap(allFiles.toString().getBytes());
                             serveChannel.write(data);
-
-                            break;
-
-                        case "D":
-
+                        }
+                        case "D" -> {
                             ByteBuffer deleteData = ByteBuffer.allocate(1024);
-
-                            while ((serveChannel.read(deleteData)) != -1);
-
+                            while ((serveChannel.read(deleteData)) != -1) ;
                             deleteData.flip();
                             byte[] b = new byte[deleteData.remaining()];
                             deleteData.get(b);
                             String filename = new String(b);
-
                             File soonToBeGone = new File("files/" + filename);
                             if (soonToBeGone.delete()) {
                                 sendReplyCode(serveChannel, "S");
@@ -123,20 +116,18 @@ public class MultiplexServer {
                                 sendReplyCode(serveChannel, "F");
                                 System.out.println("No file!");
                             }
-                            break;
-
-                        case "G":
+                        }
+                        case "G" -> {
                             ByteBuffer grabData = ByteBuffer.allocate(1024);
                             System.out.println("Entering the loop!");
-                            while ((serveChannel.read(grabData)) != -1);
+                            while ((serveChannel.read(grabData)) != -1) ;
                             System.out.println("Left the loop!");
-
                             grabData.flip();
                             byte[] g = new byte[grabData.remaining()];
                             grabData.get(g);
                             String grabFilename = new String(g);
                             System.out.println("File to be sent: " + grabFilename);
-                            sendReplyCode(serveChannel,"S");
+                            sendReplyCode(serveChannel, "S");
 
                             //Send file to client
                             File soonToBeGrabbed = new File("files/" + grabFilename);
@@ -153,25 +144,19 @@ public class MultiplexServer {
                                 System.out.println("Grabbed this!: \n" + grabbed);
                                 ByteBuffer grabbedData = ByteBuffer.wrap(grabbed.getBytes());
                                 serveChannel.write(grabbedData);
-                            } catch (Exception e){
-                                sendReplyCode(serveChannel,"F");
+                            } catch (Exception e) {
+                                sendReplyCode(serveChannel, "F");
                             }
-
-                            break;
-
-                        case "R":
+                        }
+                        case "R" -> {
                             ByteBuffer renameData = ByteBuffer.allocate(1024);
-
-                            while ((serveChannel.read(renameData)) != -1);
-
+                            while ((serveChannel.read(renameData)) != -1) ;
                             renameData.flip();
                             byte[] c = new byte[renameData.remaining()];
                             renameData.get(c);
                             String completeMessage = new String(c);
-
                             String oldName = completeMessage.split("&")[0]; //ampersand
                             String newName = completeMessage.split("&")[1]; //ampersand
-
                             File soonToBeRenamed = new File("files/" + oldName);
                             if (soonToBeRenamed.renameTo(new File("files/" + newName))) {
                                 sendReplyCode(serveChannel, "S");
@@ -180,12 +165,12 @@ public class MultiplexServer {
                                 sendReplyCode(serveChannel, "F");
                                 System.out.println("No file was renamed!");
                             }
-                            break;
-
-                        default:
+                        }
+                        default -> {
                             System.out.println("Unknown command!");
                             //send reply code to indicate request was rejected.
                             sendReplyCode(serveChannel, "F");
+                        }
                     }
                     //note that calling close() will automatically
                     // deregister the channel with the selector
