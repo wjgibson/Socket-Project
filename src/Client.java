@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -101,16 +103,49 @@ public class Client {
                     SocketChannel grabChannel = SocketChannel.open();
                     grabChannel.connect(new InetSocketAddress(serverAddr, serverPort));
 
-                    System.out.println("Please enter the name of the file you wish to read");
+                    System.out.println("Please enter the name of the file you wish to grab");
                     String fileToBeGrabbed = keyboard.nextLine();
 
                     clientMessage = "G" + fileToBeGrabbed;
 
                     messageBuffer = ByteBuffer.wrap(clientMessage.getBytes());
                     grabChannel.write(messageBuffer);
+
+                    grabChannel.shutdownOutput();
+
                     //Get a file from the server
                     //Ask the user for the file name
                     //Notify the user whether the operation is successful
+                    int bytesReadG;
+                    //read will return -1 if the server has closed the TCP connection
+                    // (when server has finished sending)
+                    if (serverCode(grabChannel).equals("S")){
+                        //StringBuilder sb = new StringBuilder();
+                        ByteBuffer data = ByteBuffer.allocate(1024);
+                        while( grabChannel.read(data) != -1);
+                        //before reading from buffer, flip buffer
+                        //("limit" set to current position, "position" set to zero)
+                        data.flip();
+                        byte[] g = new byte[data.remaining()];
+                        //copy bytes from buffer to array
+                        //(all bytes between "position" and "limit" are copied)
+                        data.get(g);
+                        String serverMessage = new String(g).substring(1);
+                        System.out.println(serverMessage);
+                        try {
+                            File grabbedFile = new File("files/g" + fileToBeGrabbed);
+                            if (grabbedFile.createNewFile()) {
+                                FileWriter grabbedFileWriter = new FileWriter("files/g" + fileToBeGrabbed);
+                                grabbedFileWriter.write(serverMessage);
+                                grabbedFileWriter.close();
+                            }
+                        } catch (IOException e) {
+                            System.out.println("Something went wrong.");
+                        }
+                    }else {
+                        System.out.println("Server rejected the request.");
+                    }
+                    grabChannel.close();
                     break;
 
                 case "R":

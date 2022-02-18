@@ -127,27 +127,30 @@ public class MultiplexServer {
 
                         case "G":
                             ByteBuffer grabData = ByteBuffer.allocate(1024);
-
+                            System.out.println("Entering the loop!");
                             while ((serveChannel.read(grabData)) != -1);
+                            System.out.println("Left the loop!");
 
                             grabData.flip();
-                            byte[] d = new byte[grabData.remaining()];
-                            grabData.get(d);
-                            String filenameG = new String(d);
+                            byte[] g = new byte[grabData.remaining()];
+                            grabData.get(g);
+                            String grabFilename = new String(g);
+                            System.out.println("File to be sent: " + grabFilename);
+                            sendReplyCode(serveChannel,"S");
 
-                            File soonToBeGrabbed = new File("files/" + filenameG);
                             //Send file to client
+                            File soonToBeGrabbed = new File("files/" + grabFilename);
                             try (BufferedReader br = new BufferedReader(new FileReader(soonToBeGrabbed))) {
                                 sendReplyCode(serveChannel, "S");
                                 StringBuilder sb = new StringBuilder();
                                 String line = br.readLine();
-
                                 while (line != null) {
                                     sb.append(line);
                                     sb.append(System.lineSeparator());
                                     line = br.readLine();
                                 }
                                 String grabbed = sb.toString();
+                                System.out.println("Grabbed this!: \n" + grabbed);
                                 ByteBuffer grabbedData = ByteBuffer.wrap(grabbed.getBytes());
                                 serveChannel.write(grabbedData);
                             } catch (Exception e){
