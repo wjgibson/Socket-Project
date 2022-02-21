@@ -114,22 +114,12 @@ public class Client {
 
                     grabChannel.shutdownOutput();
 
-                    //Get a file from the server
-                    //Ask the user for the file name
-                    //Notify the user whether the operation is successful
                     int bytesReadG;
-                    //read will return -1 if the server has closed the TCP connection
-                    // (when server has finished sending)
                     if (serverCode(grabChannel).equals("S")){
-                        //StringBuilder sb = new StringBuilder();
                         ByteBuffer data = ByteBuffer.allocate(1024);
                         while( grabChannel.read(data) != -1);
-                        //before reading from buffer, flip buffer
-                        //("limit" set to current position, "position" set to zero)
                         data.flip();
                         byte[] g = new byte[data.remaining()];
-                        //copy bytes from buffer to array
-                        //(all bytes between "position" and "limit" are copied)
                         data.get(g);
                         String serverMessage = new String(g).substring(1);
                         System.out.println(serverMessage);
