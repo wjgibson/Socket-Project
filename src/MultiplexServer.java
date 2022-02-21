@@ -155,8 +155,8 @@ public class MultiplexServer {
                             byte[] c = new byte[renameData.remaining()];
                             renameData.get(c);
                             String completeMessage = new String(c);
-                            String oldName = completeMessage.split("&")[0]; //ampersand
-                            String newName = completeMessage.split("&")[1]; //ampersand
+                            String oldName = completeMessage.split("&")[0];
+                            String newName = completeMessage.split("&")[1];
                             File soonToBeRenamed = new File("files/" + oldName);
                             if (soonToBeRenamed.renameTo(new File("files/" + newName))) {
                                 sendReplyCode(serveChannel, "S");
