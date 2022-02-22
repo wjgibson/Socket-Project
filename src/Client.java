@@ -122,7 +122,6 @@ public class Client {
                         byte[] g = new byte[data.remaining()];
                         data.get(g);
                         String serverMessage = new String(g).substring(1);
-                        System.out.println(serverMessage);
                         try {
                             File grabbedFile = new File("files/g" + fileToBeGrabbed);
                             if (grabbedFile.createNewFile()) {

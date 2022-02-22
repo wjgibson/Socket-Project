@@ -111,22 +111,17 @@ public class MultiplexServer {
                             File soonToBeGone = new File("files/" + filename);
                             if (soonToBeGone.delete()) {
                                 sendReplyCode(serveChannel, "S");
-                                System.out.println("File deleted!");
                             } else {
                                 sendReplyCode(serveChannel, "F");
-                                System.out.println("No file!");
                             }
                         }
                         case "G" -> {
                             ByteBuffer grabData = ByteBuffer.allocate(1024);
-                            System.out.println("Entering the loop!");
                             while ((serveChannel.read(grabData)) != -1) ;
-                            System.out.println("Left the loop!");
                             grabData.flip();
                             byte[] g = new byte[grabData.remaining()];
                             grabData.get(g);
                             String grabFilename = new String(g);
-                            System.out.println("File to be sent: " + grabFilename);
                             sendReplyCode(serveChannel, "S");
 
                             //Send file to client
@@ -141,7 +136,6 @@ public class MultiplexServer {
                                     line = br.readLine();
                                 }
                                 String grabbed = sb.toString();
-                                System.out.println("Grabbed this!: \n" + grabbed);
                                 ByteBuffer grabbedData = ByteBuffer.wrap(grabbed.getBytes());
                                 serveChannel.write(grabbedData);
                             } catch (Exception e) {
